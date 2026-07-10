@@ -483,52 +483,47 @@ export default function App() {
     setAssistantResults([]);
 
     try {
-      // המפתח המפוצל שלנו שעובר את כל חומות האבטחה
-      const part1 = "AQ.Ab8RN6Lx-tuIo2ANEChumqyQ"; 
-      const part2 = "EUqpxgubTWL1LwjJJqY4CKAyng"; 
-      const apiKey = (part1 + part2).replace(/\s+/g, '').trim(); 
+      // הדבק כאן את המפתח בשלמותו, בלי פיצולים!
+      const apiKey = "AQ.Ab8RN6Lx-tuIo2ANEChumqyQEUqpxgubTWL1LwjJJqY4CKAyng"; 
       
-      // משתמשים ב-v1 היציב שהוכיח שהוא פתוח בפנינו!
-      const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey.trim()}`;
       
-      // פישטנו לחלוטין את הבקשה. בלי Schema, רק הוראה חותכת למודל להחזיר JSON במבנה מדויק.
+      // פיילוד רזה ופשוט למניעת התנגשויות פורמט מול השרת
       const payload = {
-        contents: [{ 
+        contents: [{
+          role: "user",
           parts: [{ 
-            text: `You are a smart Hebrew grocery assistant. 
-            Task: Generate a grocery list for the following recipe/request: "${assistantPrompt}".
-            Return strictly a JSON array of objects. 
-            Format each object exactly like this: {"name": "item name", "amount": 1, "unit": "kg/g/units", "emoji": "🍎"}. 
-            Do not include any other text, markdown, or explanations.` 
-          }] 
-        }],
-        generationConfig: {
-          responseMimeType: "application/json"
-        }
+            text: `Return ONLY a valid JSON array of ingredients for: "${assistantPrompt}". Format exactly like this example: [{"name": "עגבנייה", "amount": 2, "unit": "יחידות", "emoji": "🍅"}]. Do not add markdown formatting or any other text.` 
+          }]
+        }]
       };
 
       const response = await fetch(url, { 
         method: 'POST', 
-        headers: { 
-          'Content-Type': 'application/json'
-        }, 
+        headers: { 'Content-Type': 'application/json' }, 
         body: JSON.stringify(payload) 
       });
 
+      // כאן הקסם: תפיסת השגיאה המדויקת שגוגל מחזיר!
       if (!response.ok) {
-         throw new Error(`HTTP Error: ${response.status}`);
+         const errorDetails = await response.text();
+         console.error("🔴 GOOGLE API ERROR DETAILS:", errorDetails);
+         showToast('שגיאה 400: פתח קונסול (F12) כדי לראות את הסיבה');
+         throw new Error(`Google API Error: ${errorDetails}`);
       }
 
       const data = await response.json();
       if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-        const resultText = data.candidates[0].content.parts[0].text;
+        // ניקוי המרקדאון (```json) למקרה שהמודל בכל זאת מוסיף אותו
+        let resultText = data.candidates[0].content.parts[0].text;
+        resultText = resultText.replace(/```json/g, '').replace(/```/g, '').trim();
         setAssistantResults(JSON.parse(resultText));
       } else {
         showToast('לא הצלחנו לייצר רשימה, נסה שוב');
       }
     } catch (error) {
-      console.error("API Error:", error);
-      showToast('אירעה שגיאה בחיבור לעוזר החכם');
+      console.error("Full Error:", error);
+      showToast('אירעה שגיאה בחיבור, בדוק קונסול');
     } finally {
       setIsGenerating(false);
     }
