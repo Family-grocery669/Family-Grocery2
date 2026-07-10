@@ -483,9 +483,11 @@ export default function App() {
     setAssistantResults([]);
 
     try {
-      // ---> הדבק כאן את המפתח החדש שלך בתוך הגרשיים <---
-      const apiKey = "AQ.Ab8RN6JtZdwXrdAKqFnD4W2faX4PWnSKyLKKefD9FoHA_FgIEQ"; 
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+      // ---> הדבק כאן את המפתח החדש שלך <---
+      const apiKey = "AQ.Ab8RN6IbDe7a94ChsQnzSb7wSwHJE73LjCSIzyU09_SM9j9uLw"; 
+      
+      // הקישור נקי לחלוטין - בלי המפתח!
+      const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
       
       const payload = {
         contents: [{ parts: [{ text: assistantPrompt }] }],
@@ -506,7 +508,8 @@ export default function App() {
       const response = await fetch(url, { 
         method: 'POST', 
         headers: { 
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'x-goog-api-key': apiKey // כאן המפתח עובר בצורה מאובטחת וחוקית לשרת
         }, 
         body: JSON.stringify(payload) 
       });
