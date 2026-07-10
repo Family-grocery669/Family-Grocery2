@@ -11,7 +11,7 @@ import { initializeApp } from "firebase/app";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyD6Vz3EXEE8C_67l1gJDVfqAmOmSv37XJs",
+apiKey: "AIzaSyD6Vz3EXEE8C_67l1gJDVfqAmOmSv37XJs",
   authDomain: "family-grocery-dedb7.firebaseapp.com",
   projectId: "family-grocery-dedb7",
   storageBucket: "family-grocery-dedb7.firebasestorage.app",
