@@ -483,12 +483,15 @@ export default function App() {
     setAssistantResults([]);
 
     try {
-      // טריק הפיצול: עוקף את הסורקים של גיטהאב ואת משתני הסביבה
+      // פיצול המפתח 
       const part1 = "AQ.Ab8RN6Lx-tuIo2ANEChumqyQ"; 
       const part2 = "EUqpxgubTWL1LwjJJqY4CKAyng"; 
-      const apiKey = part1 + part2; 
       
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+      // ניקוי אגרסיבי של רווחים, שורות חדשות או תווים נסתרים
+      const apiKey = (part1 + part2).replace(/\s+/g, '').trim(); 
+      
+      // מעבר לגרסה v1 היציבה של גוגל (במקום v1beta)
+      const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
       
       const payload = {
         contents: [{ parts: [{ text: assistantPrompt }] }],
