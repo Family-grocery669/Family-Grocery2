@@ -483,7 +483,7 @@ export default function App() {
     setAssistantResults([]);
 
     try {
-      const apiKey = "";
+      const apiKey = "AQ.Ab8RN6K4TBrqgwe8tuayG0LzZL6lyGTrEp3zVuvv7JAv0SpQHQ";
       const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
       const payload = {
         contents: [{ parts: [{ text: assistantPrompt }] }],
