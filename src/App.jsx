@@ -4,26 +4,23 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, collection, onSnapshot, addDoc, updateDoc, doc, deleteDoc, setDoc } from 'firebase/firestore';
 
-// --- Firebase Config ---
-const DEFAULT_FIREBASE_CONFIG = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-const currentUrlParams = new URLSearchParams(window.location.search);
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
-let firebaseConfig = DEFAULT_FIREBASE_CONFIG;
-if (currentUrlParams.get('ak')) {
-  firebaseConfig = {
-    apiKey: currentUrlParams.get('ak'), 
-    projectId: currentUrlParams.get('pd'),
-    authDomain: currentUrlParams.get('ad'), 
-    appId: currentUrlParams.get('ai'),
-  };
-}
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyD6Vz3EXEE8C_67l1gJDVfqAmOmSv37XJs",
+  authDomain: "family-grocery-dedb7.firebaseapp.com",
+  projectId: "family-grocery-dedb7",
+  storageBucket: "family-grocery-dedb7.firebasestorage.app",
+  messagingSenderId: "329029861566",
+  appId: "1:329029861566:web:5de3557a04afbcbac51eef"
+};
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-// זיהוי גלובלי מאובטח (חובה להשתמש במזהה המקורי כדי למנוע שגיאות הרשאה)
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'grocery-app-default';
 
 // --- Rich Hierarchical Product Catalog ---
 const CATEGORIES = {
