@@ -483,8 +483,9 @@ export default function App() {
     setAssistantResults([]);
 
     try {
-      const apiKey = "AQ.Ab8RN6I73pMV1bhyWkVniM2ZOoSFk3vwUnr778YY9aMuFGC0dA";
-      const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+      // חובה להכניס כאן את המפתח החדש והפעיל במקום הטקסט בעברית
+      const apiKey = "AQ.Ab8RN6I73pMV1bhyWkVniM2ZOoSFk3vwUnr778YY9aMuFGC0dA"; 
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
       
       const payload = {
         contents: [{ parts: [{ text: assistantPrompt }] }],
@@ -505,8 +506,7 @@ export default function App() {
       const response = await fetch(url, { 
         method: 'POST', 
         headers: { 
-          'Content-Type': 'application/json',
-          'x-goog-api-key': apiKey 
+          'Content-Type': 'application/json'
         }, 
         body: JSON.stringify(payload) 
       });
