@@ -483,11 +483,9 @@ export default function App() {
     setAssistantResults([]);
 
     try {
-      // ---> הדבק כאן את המפתח החדש שלך <---
-      const apiKey = "AQ.Ab8RN6IbDe7a94ChsQnzSb7wSwHJE73LjCSIzyU09_SM9j9uLw"; 
-      
-      // הקישור נקי לחלוטין - בלי המפתח!
-      const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+      // המפתח נמשך עכשיו מתוך Vercel בצורה מאובטחת!
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY; 
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
       
       const payload = {
         contents: [{ parts: [{ text: assistantPrompt }] }],
@@ -508,8 +506,7 @@ export default function App() {
       const response = await fetch(url, { 
         method: 'POST', 
         headers: { 
-          'Content-Type': 'application/json',
-          'x-goog-api-key': apiKey // כאן המפתח עובר בצורה מאובטחת וחוקית לשרת
+          'Content-Type': 'application/json'
         }, 
         body: JSON.stringify(payload) 
       });
