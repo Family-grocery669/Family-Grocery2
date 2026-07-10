@@ -482,30 +482,41 @@ export default function App() {
     setIsGenerating(true);
     setAssistantResults([]);
 
-    try {
-      const apiKey = "AQ.Ab8RN6I73pMV1bhyWkVniM2ZOoSFk3vwUnr778YY9aMuFGC0dA";
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-      const payload = {
-        contents: [{ parts: [{ text: assistantPrompt }] }],
-        systemInstruction: { parts: [{ text: "You are a smart Hebrew grocery assistant. Return JSON list of ingredients needed for the user's meal. Format: [{name, amount, unit, emoji}]." }] },
-        generationConfig: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: "ARRAY",
-            items: {
-              type: "OBJECT",
-              properties: { name: { type: "STRING" }, amount: { type: "NUMBER" }, unit: { type: "STRING" }, emoji: { type: "STRING" } },
-              required: ["name", "amount", "unit", "emoji"]
-            }
+   const apiKey = "AQ.Ab8RN6I73pMV1bhyWkVniM2ZOoSFk3vwUnr778YY9aMuFGC0dA";
+    const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"; // הקישור נקי ללא המפתח
+    
+    const payload = {
+      contents: [{ parts: [{ text: assistantPrompt }] }],
+      systemInstruction: { parts: [{ text: "You are a smart Hebrew grocery assistant. Return JSON list of ingredients needed for the recipe." }] },
+      generationConfig: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: "ARRAY",
+          items: {
+            type: "OBJECT",
+            properties: { name: { type: "STRING" }, amount: { type: "NUMBER" }, unit: { type: "STRING" }, emoji: { type: "STRING" } },
+            required: ["name", "amount", "unit", "emoji"]
           }
         }
-      };
+      }
+    };
 
-      const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-      const data = await response.json();
-      if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-        setAssistantResults(JSON.parse(data.candidates[0].content.parts[0].text));
-      } else showToast('לא הצלחנו לייצר רשימה, נסה שוב.');
+    // המעקף: העברת המפתח דרך כותרת ה-x-goog-api-key
+    const response = await fetch(url, { 
+      method: 'POST', 
+      headers: { 
+        'Content-Type': 'application/json',
+        'x-goog-api-key': apiKey 
+      }, 
+      body: JSON.stringify(payload) 
+    });
+
+    const data = await response.json();
+    if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+      setAssistantResults(JSON.parse(data.candidates[0].content.parts[0].text));
+    } else {
+      showToast('לא הצלחנו לייצר רשימה, נסה שוב');
+    }
     } catch (error) {
       showToast('אירעה שגיאה בחיבור לעוזר החכם.');
     } finally {
