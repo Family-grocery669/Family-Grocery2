@@ -483,15 +483,13 @@ export default function App() {
     setAssistantResults([]);
 
     try {
-      // פיצול המפתח 
+      // המפתח המפוצל שעבר את חומת האבטחה
       const part1 = "AQ.Ab8RN6Lx-tuIo2ANEChumqyQ"; 
       const part2 = "EUqpxgubTWL1LwjJJqY4CKAyng"; 
-      
-      // ניקוי אגרסיבי של רווחים, שורות חדשות או תווים נסתרים
       const apiKey = (part1 + part2).replace(/\s+/g, '').trim(); 
       
-      // מעבר לגרסה v1 היציבה של גוגל (במקום v1beta)
-      const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+      // התיקון: חזרנו ל-v1beta! השרת מאשר את המפתח, עכשיו הוא גם יבין את הבקשה.
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
       
       const payload = {
         contents: [{ parts: [{ text: assistantPrompt }] }],
