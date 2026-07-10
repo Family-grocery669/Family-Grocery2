@@ -5,10 +5,8 @@ import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged }
 import { getFirestore, collection, onSnapshot, addDoc, updateDoc, doc, deleteDoc, setDoc } from 'firebase/firestore';
 
 // --- Firebase Config ---
-// בגלל שאנחנו מריצים את זה כאן בתצוגה המקדימה (או אצלך על Vercel), אנחנו טוענים את ההגדרות מהסביבה אם קיימות,
-// אחרת נשתמש בנתונים זמניים או ריקים כדי לא להקריס את האפליקציה ב-Preview.
 const DEFAULT_FIREBASE_CONFIG = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-const currentUrlParams = new URLSearchParams(window.location?.search || '');
+const currentUrlParams = new URLSearchParams(window.location.search);
 
 let firebaseConfig = DEFAULT_FIREBASE_CONFIG;
 if (currentUrlParams.get('ak')) {
@@ -20,11 +18,9 @@ if (currentUrlParams.get('ak')) {
   };
 }
 
-// מאתחלים את Firebase רק אם יש לנו הגדרות אמיתיות או אם אנחנו בסביבת Canvas
-// למטרות Preview אנחנו נמנעים משגיאות קריטיות אם אין Firebase מוגדר עדיין
-const app = Object.keys(firebaseConfig).length > 0 ? initializeApp(firebaseConfig) : null;
-const auth = app ? getAuth(app) : null;
-const db = app ? getFirestore(app) : null;
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 // זיהוי גלובלי מאובטח (חובה להשתמש במזהה המקורי כדי למנוע שגיאות הרשאה)
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'grocery-app-default';
@@ -268,21 +264,13 @@ export default function App() {
 
   // --- מערכת סנכרון חכמה ללא בעיות אבטחה של URL פרטי ---
   const [listId, setListId] = useState(() => {
-    // מזהה אקראי לרשימה אם לא קיים כבר (בתוך try-catch כדי להתמודד עם שגיאות בגישה ל-localStorage בסביבת טסט)
-    try {
-        return localStorage.getItem('grocery_list_id') || Math.random().toString(36).substring(2, 7).toUpperCase();
-    } catch (e) {
-        return Math.random().toString(36).substring(2, 7).toUpperCase();
-    }
+    // מזהה אקראי לרשימה אם לא קיים כבר
+    return localStorage.getItem('grocery_list_id') || Math.random().toString(36).substr(2, 5).toUpperCase();
   });
   const [joinCode, setJoinCode] = useState('');
 
   useEffect(() => {
-    try {
-      localStorage.setItem('grocery_list_id', listId);
-    } catch(e) {
-      console.warn("Could not access localStorage");
-    }
+    localStorage.setItem('grocery_list_id', listId);
   }, [listId]);
 
   // Search State
@@ -303,7 +291,7 @@ export default function App() {
   const [shareModalOpen, setShareModalOpen] = useState(false);
 
   // Family Info
-  const [familyName, setFamilyName] = useState('משפחה שלי');
+  const [familyName, setFamilyName] = useState('ברקוביץ');
   const [isEditingFamily, setIsEditingFamily] = useState(false);
   const [tempFamily, setTempFamily] = useState('');
 
@@ -351,8 +339,6 @@ export default function App() {
 
   // Auth logic
   useEffect(() => {
-    if (!auth) return; // הגנה למקרה שפיירבייס לא אותחל בהצלחה
-
     const initAuth = async () => {
       try {
         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token && !currentUrlParams.get('ak')) {
@@ -361,7 +347,7 @@ export default function App() {
           await signInAnonymously(auth);
         }
       } catch (error) {
-        console.error("Auth init error:", error);
+        await signInAnonymously(auth);
       }
     };
     initAuth();
@@ -374,16 +360,7 @@ export default function App() {
 
   // DB Sync logic
   useEffect(() => {
-    if (!user || !db) {
-        // Fallback for Preview environment without Firebase setup
-        if (!db) {
-            setItems([
-                { id: '1', name: 'חלב 3%', amount: 2, unit: 'יחידות', emoji: '🥛', purchased: false },
-                { id: '2', name: 'ביצים L', amount: 1, unit: 'אריזות', emoji: '🥚', purchased: true }
-            ]);
-        }
-        return;
-    }
+    if (!user) return;
     
     // שימוש ב-listId כנתיב לשמירת הנתונים תוך הקפדה על חוקי האבטחה (מקסימום 5/6 סגמנטים)
     const listRef = collection(db, 'artifacts', appId, 'public', 'data', `list_${listId}`);
@@ -407,29 +384,17 @@ export default function App() {
   }, [user, listId]);
 
   const saveFamilyName = async () => {
-    if (!tempFamily.trim() || !user || !db) {
-      if (!db) { setFamilyName(tempFamily.trim()); setIsEditingFamily(false); }
-      return;
-    }
+    if (!tempFamily.trim() || !user) return;
     await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'metadata', `meta_${listId}`), { familyName: tempFamily.trim() }, { merge: true });
     setIsEditingFamily(false);
   };
 
   const confirmAddItem = async () => {
-    if (!addingProduct) return;
+    if (!user || !addingProduct) return;
     const { name, emoji, img } = addingProduct;
     const amount = parseFloat(addAmount) || 1;
     const unit = addUnit;
     const note = addNote.trim();
-
-    if (!user || !db) {
-       // Mock for preview
-       setItems([{id: Math.random().toString(), name, emoji, img, amount, unit, note, purchased: false}, ...items]);
-       showToast(`${name} נוסף לעגלה!`);
-       setAddingProduct(null);
-       setSearchTerm('');
-       return;
-    }
 
     const existing = items.find(i => i.name === name && (i.unit || 'יחידות') === unit && (i.note || '') === note && !i.purchased);
 
@@ -447,23 +412,15 @@ export default function App() {
   };
 
   const togglePurchased = async (id, current) => {
-    if (!user || !db) {
-        setItems(items.map(i => i.id === id ? {...i, purchased: !current} : i));
-        return;
-    }
+    if (!user) return;
     await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', `list_${listId}`, id), { purchased: !current });
   };
 
   const updateAmount = async (id, amount, unit, delta) => {
+    if (!user) return;
     const step = unit === 'ק"ג' ? 0.25 : (unit === 'גרם' ? 100 : 1);
     const newAmount = Math.max(0, amount + (delta > 0 ? step : -step));
     
-    if (!user || !db) {
-       if (newAmount === 0) setItems(items.filter(i => i.id !== id));
-       else setItems(items.map(i => i.id === id ? {...i, amount: newAmount} : i));
-       return;
-    }
-
     if (newAmount === 0) {
       await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', `list_${listId}`, id));
     } else {
@@ -472,10 +429,7 @@ export default function App() {
   };
 
   const clearPurchased = async () => {
-    if (!user || !db) {
-        setItems(items.filter(i => !i.purchased));
-        return;
-    }
+    if (!user) return;
     const purchased = items.filter(i => i.purchased);
     for (const item of purchased) {
       await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', `list_${listId}`, item.id));
@@ -484,7 +438,7 @@ export default function App() {
 
   const submitCustomItem = async (e) => {
     e.preventDefault();
-    if (!customItemName.trim()) return;
+    if (!customItemName.trim() || !user) return;
     
     const newItem = { 
       name: customItemName.trim(), 
@@ -494,12 +448,8 @@ export default function App() {
       subCategory: customItemSubCat
     };
 
-    if (user && db) {
-      // שמירה למסד הנתונים של הקטלוג המותאם אישית
-      await addDoc(collection(db, 'artifacts', appId, 'public', 'data', `custom_${listId}`), newItem);
-    } else {
-       setCustomCatalog([...customCatalog, newItem]);
-    }
+    // שמירה למסד הנתונים של הקטלוג המותאם אישית
+    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', `custom_${listId}`), newItem);
 
     // ממשיכים ישירות לחלון בחירת הכמות כדי להוסיף את המוצר לסל
     setAddingProduct(newItem);
@@ -512,16 +462,12 @@ export default function App() {
 
   const handleSearchCustomAdd = async (e) => {
     e.preventDefault();
-    if (!customItemName.trim()) return;
+    if (!customItemName.trim() || !user) return;
     const newItem = { 
       name: customItemName.trim(), emoji: '🛒', img: null,
       mainCategory: 'מזווה ומאפייה', subCategory: 'יבש ושימורים'
     };
-    if (user && db) {
-        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', `custom_${listId}`), newItem);
-    } else {
-        setCustomCatalog([...customCatalog, newItem]);
-    }
+    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', `custom_${listId}`), newItem);
     setAddingProduct(newItem);
     setAddUnit('יחידות'); setAddAmount(1); setAddNote(''); setCustomItemName('');
   };
@@ -532,13 +478,9 @@ export default function App() {
     dummy.value = listId;
     dummy.select();
     dummy.setSelectionRange(0, 99999);
-    try {
-        document.execCommand('copy');
-        showToast('קוד ה-PIN הועתק! שלח אותו למשפחה.');
-    } catch (e) {
-        showToast('העתקה נכשלה.');
-    }
+    document.execCommand('copy');
     document.body.removeChild(dummy);
+    showToast('קוד ה-PIN הועתק! שלח אותו למשפחה.');
   };
 
   const generateSmartList = async () => {
@@ -572,28 +514,13 @@ export default function App() {
       } else showToast('לא הצלחנו לייצר רשימה, נסה שוב.');
     } catch (error) {
       showToast('אירעה שגיאה בחיבור לעוזר החכם.');
-      // Mock result for demo purpose if API fails
-      setAssistantResults([
-          {name: 'עגבניה', amount: 5, unit: 'יחידות', emoji: '🍅'},
-          {name: 'בצל', amount: 2, unit: 'יחידות', emoji: '🧅'},
-          {name: 'שמן זית', amount: 1, unit: 'יחידות', emoji: '🫙'}
-      ]);
     } finally {
       setIsGenerating(false);
     }
   };
 
   const addAllFromAssistant = async () => {
-    if (assistantResults.length === 0) return;
-    
-    if (!user || !db) {
-       const newItems = assistantResults.map(r => ({id: Math.random().toString(), name: r.name, emoji: r.emoji, img: null, purchased: false, amount: r.amount, unit: r.unit, note: ''}));
-       setItems([...newItems, ...items]);
-       showToast('הוספנו את המצרכים בהצלחה!');
-       setAssistantResults([]); setAssistantPrompt(''); setActiveTab('list');
-       return;
-    }
-
+    if (!user || assistantResults.length === 0) return;
     for (const item of assistantResults) {
       const existing = items.find(i => i.name === item.name && (i.unit || 'יחידות') === item.unit && !i.purchased);
       if (existing) {
@@ -657,9 +584,6 @@ export default function App() {
               <div className="text-center bg-white/80 backdrop-blur rounded-2xl p-6 border border-gray-100 shadow-sm mt-8">
                 <ShoppingBag className="mx-auto w-12 h-12 text-gray-300 mb-3" />
                 <p className="text-base font-bold text-gray-500">הסל ריק כרגע</p>
-                <button onClick={() => setActiveTab('add')} className="mt-4 bg-green-100 text-green-700 px-4 py-2 rounded-xl font-bold text-sm inline-flex items-center gap-1 hover:bg-green-200 transition-colors">
-                    <Plus size={16}/> הוסף מוצרים ראשונים
-                </button>
               </div>
             ) : 
             items.map(item => (
@@ -914,7 +838,7 @@ export default function App() {
                   <Copy size={14}/> לחץ כאן להעתקת קוד הגישה הסודי
                 </button>
                 <p className="text-xs text-green-700 leading-relaxed border-t border-green-200 pt-3">
-                  <b>איך זה עובד?</b> כל מי שרוצה להצטרף לעריכת הרשימה, צריך לפתוח את האפליקציה בטלפון שלו ולהזין את הקוד הזה.
+                  <b>איך משתפים בסביבה זו?</b> כל מי שרוצה להצטרף לעריכת הרשימה, צריך לפתוח את האפליקציה בג'מיני אצלו ולהזין את הקוד הזה.
                 </p>
               </div>
 
@@ -955,7 +879,7 @@ export default function App() {
         </div>
       )}
 
-      {/* Add Amount Modal */}
+      {/* Add Amount Modal (הוקטן ב-20%) */}
       {addingProduct && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" dir="rtl">
           <div className="bg-white rounded-3xl shadow-2xl w-[260px] overflow-hidden">
@@ -998,7 +922,7 @@ export default function App() {
                       type="text" 
                       value={addNote}
                       onChange={(e) => setAddNote(e.target.value)}
-                      placeholder="הערה (למשל: רק של תנובה...)" 
+                      placeholder="הערה (למשל: רק של תנובה, 5%...)" 
                       className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 pr-8 pl-2 text-xs outline-none focus:border-green-400 transition-colors shadow-inner"
                     />
                  </div>
