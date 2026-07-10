@@ -483,8 +483,8 @@ export default function App() {
     setAssistantResults([]);
 
     try {
-      const apiKey = "AQ.Ab8RN6L2h99YidYeENbASovAtUiMtlAIOPfm9MatRAmyXwhqZQ";
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash:generateContent?key=${apiKey}`;
+      const apiKey = "AQ.Ab8RN6I73pMV1bhyWkVniM2ZOoSFk3vwUnr778YY9aMuFGC0dA";
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
       const payload = {
         contents: [{ parts: [{ text: assistantPrompt }] }],
         systemInstruction: { parts: [{ text: "You are a smart Hebrew grocery assistant. Return JSON list of ingredients needed for the user's meal. Format: [{name, amount, unit, emoji}]." }] },
