@@ -21,6 +21,9 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const appId = 'grocery-app-default';
 
 // --- Rich Hierarchical Product Catalog ---
 const CATEGORIES = {
