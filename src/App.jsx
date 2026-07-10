@@ -483,8 +483,8 @@ export default function App() {
     setAssistantResults([]);
 
     try {
-      // חובה להכניס כאן את המפתח החדש והפעיל במקום הטקסט בעברית
-      const apiKey = "AQ.Ab8RN6I73pMV1bhyWkVniM2ZOoSFk3vwUnr778YY9aMuFGC0dA"; 
+      // ---> הדבק כאן את המפתח החדש שלך בתוך הגרשיים <---
+      const apiKey = "AQ.Ab8RN6JtZdwXrdAKqFnD4W2faX4PWnSKyLKKefD9FoHA_FgIEQ"; 
       const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
       
       const payload = {
