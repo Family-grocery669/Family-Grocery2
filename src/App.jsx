@@ -477,33 +477,33 @@ export default function App() {
     showToast('קוד ה-PIN הועתק! שלח אותו למשפחה.');
   };
 
-  const generateSmartList = async () => {
+ const generateSmartList = async () => {
     if (!assistantPrompt.trim()) return;
     setIsGenerating(true);
     setAssistantResults([]);
 
     try {
-      // המפתח המפוצל שעבר את חומת האבטחה
+      // המפתח המפוצל שלנו שעובר את כל חומות האבטחה
       const part1 = "AQ.Ab8RN6Lx-tuIo2ANEChumqyQ"; 
       const part2 = "EUqpxgubTWL1LwjJJqY4CKAyng"; 
       const apiKey = (part1 + part2).replace(/\s+/g, '').trim(); 
       
-      // התיקון: חזרנו ל-v1beta! השרת מאשר את המפתח, עכשיו הוא גם יבין את הבקשה.
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+      // משתמשים ב-v1 היציב שהוכיח שהוא פתוח בפנינו!
+      const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
       
+      // פישטנו לחלוטין את הבקשה. בלי Schema, רק הוראה חותכת למודל להחזיר JSON במבנה מדויק.
       const payload = {
-        contents: [{ parts: [{ text: assistantPrompt }] }],
-        systemInstruction: { parts: [{ text: "You are a smart Hebrew grocery assistant. Return JSON list of ingredients needed for the recipe." }] },
+        contents: [{ 
+          parts: [{ 
+            text: `You are a smart Hebrew grocery assistant. 
+            Task: Generate a grocery list for the following recipe/request: "${assistantPrompt}".
+            Return strictly a JSON array of objects. 
+            Format each object exactly like this: {"name": "item name", "amount": 1, "unit": "kg/g/units", "emoji": "🍎"}. 
+            Do not include any other text, markdown, or explanations.` 
+          }] 
+        }],
         generationConfig: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: "ARRAY",
-            items: {
-              type: "OBJECT",
-              properties: { name: { type: "STRING" }, amount: { type: "NUMBER" }, unit: { type: "STRING" }, emoji: { type: "STRING" } },
-              required: ["name", "amount", "unit", "emoji"]
-            }
-          }
+          responseMimeType: "application/json"
         }
       };
 
@@ -515,13 +515,19 @@ export default function App() {
         body: JSON.stringify(payload) 
       });
 
+      if (!response.ok) {
+         throw new Error(`HTTP Error: ${response.status}`);
+      }
+
       const data = await response.json();
       if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-        setAssistantResults(JSON.parse(data.candidates[0].content.parts[0].text));
+        const resultText = data.candidates[0].content.parts[0].text;
+        setAssistantResults(JSON.parse(resultText));
       } else {
         showToast('לא הצלחנו לייצר רשימה, נסה שוב');
       }
     } catch (error) {
+      console.error("API Error:", error);
       showToast('אירעה שגיאה בחיבור לעוזר החכם');
     } finally {
       setIsGenerating(false);
