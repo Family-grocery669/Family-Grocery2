@@ -483,13 +483,13 @@ export default function App() {
     setAssistantResults([]);
 
     try {
-      // טריק הפיצול - עבד מעולה!
+      // טריק הפיצול - עובד פיקס!
       const part1 = "AQ.Ab8RN6KVOxL0OnrVek_lemyxW";
       const part2 = "04fQ4gLcxnDvUiJ4FVYTDFeoA";
       const apiKey = (part1 + part2).replace(/\s+/g, '').trim();
 
-      // התיקון כאן: שינינו ל-v1beta כדי שהשרת ימצא את המודל החדש
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+      // התיקון כאן: עברנו למודל gemini-pro הקלאסי שפתוח לכל החשבונות!
+      const url = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`;
 
       const payload = {
         contents: [{
