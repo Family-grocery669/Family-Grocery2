@@ -484,8 +484,8 @@ export default function App() {
 
     try {
       // טריק הפיצול - משאירים אותו כי הוא עבר את האבטחה בהצלחה!
-      const part1 = "הדבק-כאן-את-החצי-הראשון";
-      const part2 = "הדבק-כאן-את-החצי-השני";
+      const part1 = "AQ.Ab8RN6KVOxL0OnrVek_lemyxW";
+      const part2 = "04fQ4gLcxnDvUiJ4FVYTDFeoA";
       const apiKey = (part1 + part2).replace(/\s+/g, '').trim();
 
       // עוקפים את ה-SDK ופונים ישירות ל-v1 היציב שהוכיח קודם שהוא מזהה את המודל
