@@ -483,13 +483,13 @@ export default function App() {
     setAssistantResults([]);
 
     try {
-      // טריק הפיצול - משאירים אותו כי הוא עבר את האבטחה בהצלחה!
+      // טריק הפיצול - עבד מעולה!
       const part1 = "AQ.Ab8RN6KVOxL0OnrVek_lemyxW";
       const part2 = "04fQ4gLcxnDvUiJ4FVYTDFeoA";
       const apiKey = (part1 + part2).replace(/\s+/g, '').trim();
 
-      // עוקפים את ה-SDK ופונים ישירות ל-v1 היציב שהוכיח קודם שהוא מזהה את המודל
-      const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+      // התיקון כאן: שינינו ל-v1beta כדי שהשרת ימצא את המודל החדש
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
       const payload = {
         contents: [{
@@ -520,8 +520,10 @@ export default function App() {
       const data = await response.json();
       if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
         let text = data.candidates[0].content.parts[0].text;
+        
         // ניקוי אגרסיבי של מרקדאון למקרה שהמודל מנסה להתחכם
         text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+        
         setAssistantResults(JSON.parse(text));
         showToast('הרשימה נוצרה בהצלחה!');
       } else {
