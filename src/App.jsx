@@ -1,3 +1,4 @@
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import React, { useState, useEffect, useMemo } from 'react';
 import { CheckCircle2, Circle, Plus, Trash2, ShoppingCart, ShoppingBag, Share2, Edit2, Copy, ExternalLink, X, Sparkles, Search, ChevronRight, MessageSquareText } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
