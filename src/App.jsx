@@ -5,7 +5,6 @@ import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, collection, onSnapshot, addDoc, updateDoc, doc, deleteDoc, setDoc } from 'firebase/firestore';
 
 // --- Firebase Config ---
-const DEFAULT_FIREBASE_CONFIG = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
 const currentUrlParams = new URLSearchParams(window.location.search);
 
 const firebaseConfig = {
@@ -131,8 +130,8 @@ const translations = {
   }
 };
 
-// --- Rich Hierarchical Product Catalog ---
-const CATEGORIES = {
+// --- קטלוג מוצרים בעברית ---
+const CATEGORIES_HE = {
   'מקרר ומוצרי חלב': {
     'חלב ומשקאות': [
       { name: 'חלב 3%', img: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=150', emoji: '🥛' },
@@ -206,6 +205,81 @@ const CATEGORIES = {
   }
 };
 
+// --- קטלוג מוצרים באנגלית ---
+const CATEGORIES_EN = {
+  'Dairy & Fridge': {
+    'Milk & Beverages': [
+      { name: 'Milk 3%', img: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=150', emoji: '🥛' },
+      { name: 'Milk 1%', img: 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=150', emoji: '🥛' },
+      { name: 'Oat Milk', img: null, emoji: '🌾' },
+      { name: 'Soy Milk', img: null, emoji: '🌱' },
+      { name: 'Chocolate Milk', img: null, emoji: '🧋' }
+    ],
+    'Cheese': [
+      { name: 'Yellow Cheese', img: 'https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=150', emoji: '🧀' },
+      { name: 'Cottage Cheese', img: null, emoji: '🥣' },
+      { name: 'White Cheese', img: null, emoji: '🥣' },
+      { name: 'Feta Cheese', img: null, emoji: '🧀' }
+    ],
+    'Eggs & Salads': [
+      { name: 'Eggs L', img: 'https://images.unsplash.com/photo-1587486913049-53fc88980cfc?w=150', emoji: '🥚' },
+      { name: 'Butter', img: 'https://images.unsplash.com/photo-1588195538326-c5b1e9f80a1b?w=150', emoji: '🧈' },
+      { name: 'Hummus', img: null, emoji: '🥣' },
+      { name: 'Tahini', img: null, emoji: '🥣' }
+    ]
+  },
+  'Fruits & Vegetables': {
+    'Vegetables': [
+      { name: 'Tomato', img: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=150', emoji: '🍅' },
+      { name: 'Cucumber', img: 'https://images.unsplash.com/photo-1604977042946-1eecc30f269e?w=150', emoji: '🥒' },
+      { name: 'Onion', img: 'https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=150', emoji: '🧅' },
+      { name: 'Garlic', img: 'https://images.unsplash.com/photo-1587049352847-81a56d773c1c?w=150', emoji: '🧄' },
+      { name: 'Potato', img: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=150', emoji: '🥔' }
+    ],
+    'Fruits': [
+      { name: 'Banana', img: 'https://images.unsplash.com/photo-1571501435520-c06f52e82502?w=150', emoji: '🍌' },
+      { name: 'Apple', img: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6fac6?w=150', emoji: '🍎' },
+      { name: 'Lemon', img: 'https://images.unsplash.com/photo-1590502593747-422eba4105ef?w=150', emoji: '🍋' }
+    ]
+  },
+  'Fresh Meat & Fish': {
+    'Chicken & Turkey': [
+      { name: 'Whole Chicken', img: 'https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=150', emoji: '🍗' },
+      { name: 'Chicken Breast', img: null, emoji: '🥩' },
+      { name: 'Fresh Schnitzel', img: null, emoji: '🍗' }
+    ],
+    'Beef & Fish': [
+      { name: 'Minced Meat', img: 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=150', emoji: '🥩' },
+      { name: 'Fresh Salmon', img: 'https://images.unsplash.com/photo-1511833075217-4dbf77c38c03?w=150', emoji: '🐟' }
+    ]
+  },
+  'Pantry & Bakery': {
+    'Breads & Pastries': [
+      { name: 'Standard Bread', img: 'https://images.unsplash.com/photo-1598373182133-52452f7691ef?w=150', emoji: '🍞' },
+      { name: 'Pitas', img: null, emoji: '🫓' },
+      { name: 'Buns', img: 'https://images.unsplash.com/photo-1577047285642-8356980cc8e6?w=150', emoji: '🥖' }
+    ],
+    'Dry Goods & Canned': [
+      { name: 'Pasta', img: null, emoji: '🍝' },
+      { name: 'Rice', img: null, emoji: '🍚' },
+      { name: 'Olive Oil', img: null, emoji: '🫙' },
+      { name: 'Tomato Paste', img: null, emoji: '🥫' }
+    ]
+  },
+  'Beverages': {
+    'Soft Drinks & Water': [
+      { name: 'Mineral Water (6-pack)', img: 'https://images.unsplash.com/photo-1523362628745-0c100150b504?w=150', emoji: '💧' },
+      { name: 'Cola', img: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=150', emoji: '🥤' }
+    ]
+  },
+  'Cleaning & Disposables': {
+    'Cleaning Products': [
+      { name: 'Toilet Paper', img: 'https://images.unsplash.com/photo-1584556812952-905ffd0c611a?w=150', emoji: '🧻' },
+      { name: 'Dish Soap', img: 'https://images.unsplash.com/photo-1600857062241-98e5dba7f214?w=150', emoji: '🧼' }
+    ]
+  }
+};
+
 const ProductImage = ({ src, emoji, size = 'default' }) => {
   const [error, setError] = useState(false);
   const dims = size === 'small' ? 'w-8 h-8 text-xl' : 'w-10 h-10 text-2xl';
@@ -221,19 +295,14 @@ const ProductImage = ({ src, emoji, size = 'default' }) => {
 };
 
 export default function App() {
-  // --- מערכת שפות (Language System) ---
   const [lang, setLang] = useState(() => localStorage.getItem('grocery_lang') || 'he');
   const t = translations[lang];
   const isRtl = lang === 'he';
   const UNITS = lang === 'he' ? ['יחידות', 'ק"ג', 'גרם', 'ליטר', 'אריזות'] : ['pcs', 'kg', 'g', 'L', 'packs'];
 
-  const toggleLanguage = () => {
-    const newLang = lang === 'he' ? 'en' : 'he';
-    setLang(newLang);
-    localStorage.setItem('grocery_lang', newLang);
-  };
+  // תיקון חשוב: בחירת מילון הקטגוריות בהתאם לשפה
+  const baseCategories = lang === 'he' ? CATEGORIES_HE : CATEGORIES_EN;
 
-  // --- מערכת קישורים ומשתמשים חכמה ---
   const [listId, setListId] = useState(() => {
     const urlListId = currentUrlParams.get('list');
     if (urlListId) {
@@ -248,7 +317,6 @@ export default function App() {
   const [setupTempFamily, setSetupTempFamily] = useState('');
   const [setupTempUser, setSetupTempUser] = useState('');
 
-  // States רגילים
   const [items, setItems] = useState([]);
   const [customCatalog, setCustomCatalog] = useState([]); 
   const [activeMainCategory, setActiveMainCategory] = useState(null);
@@ -256,7 +324,6 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Modals & Temp States
   const [addingProduct, setAddingProduct] = useState(null);
   const [addAmount, setAddAmount] = useState(1);
   const [addUnit, setAddUnit] = useState(UNITS[0]);
@@ -268,20 +335,26 @@ export default function App() {
   const [customItemSubCat, setCustomItemSubCat] = useState('');
   
   const [toastMsg, setToastMsg] = useState(null);
-  const [shareModalOpen, setShareModalOpen] = useState(false); // <--- סטייט לחלון שיתוף חכם
+  const [shareModalOpen, setShareModalOpen] = useState(false);
 
-  // Family Info
   const [familyName, setFamilyName] = useState('');
   const [isEditingFamily, setIsEditingFamily] = useState(false);
   const [tempFamily, setTempFamily] = useState('');
 
-  // AI Assistant States
   const [assistantPrompt, setAssistantPrompt] = useState('');
   const [assistantResults, setAssistantResults] = useState([]);
   const [assistantRecipeName, setAssistantRecipeName] = useState('');
   const [assistantInstructions, setAssistantInstructions] = useState([]);
   const [showInstructions, setShowInstructions] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  const toggleLanguage = () => {
+    const newLang = lang === 'he' ? 'en' : 'he';
+    setLang(newLang);
+    localStorage.setItem('grocery_lang', newLang);
+    setActiveMainCategory(null); // איפוס קטגוריה כשמשנים שפה כדי למנוע מסך ריק
+    setSearchTerm('');
+  };
 
   useEffect(() => {
     localStorage.setItem('grocery_list_id', listId);
@@ -291,7 +364,7 @@ export default function App() {
   }, [listId]);
 
   const fullCategories = useMemo(() => {
-    const merged = JSON.parse(JSON.stringify(CATEGORIES));
+    const merged = JSON.parse(JSON.stringify(baseCategories));
     customCatalog.forEach(item => {
       if (merged[item.mainCategory]) {
         if (!merged[item.mainCategory][item.subCategory]) {
@@ -303,7 +376,7 @@ export default function App() {
       }
     });
     return merged;
-  }, [customCatalog]);
+  }, [customCatalog, baseCategories]);
 
   const allProducts = useMemo(() => {
     let list = [];
@@ -317,7 +390,7 @@ export default function App() {
 
   const searchResults = useMemo(() => {
     if (!searchTerm.trim()) return [];
-    return allProducts.filter(p => p.name.includes(searchTerm));
+    return allProducts.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
   }, [searchTerm, allProducts]);
 
   const showToast = (msg) => {
@@ -325,7 +398,6 @@ export default function App() {
     setTimeout(() => setToastMsg(null), 3000);
   };
 
-  // Auth logic
   useEffect(() => {
     const initAuth = async () => {
       try {
@@ -342,7 +414,6 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
-  // DB Sync logic
   useEffect(() => {
     if (!user) return;
     
@@ -440,7 +511,6 @@ export default function App() {
     setAssistantResults(prev => prev.filter(item => item.id !== id));
   };
 
-  // --- פונקציות שיתוף חכמות ---
   const executeShare = async (urlToShare) => {
     if (navigator.share) {
       try {
@@ -462,7 +532,6 @@ export default function App() {
   const shareFamilyList = () => executeShare(`${window.location.origin}${window.location.pathname}?list=${listId}`);
   const shareBlankApp = () => executeShare(`${window.location.origin}${window.location.pathname}`);
 
-  // --- מנוע AI מעודכן כולל שפות ---
   const generateSmartList = async () => {
     if (!assistantPrompt.trim()) return;
     setIsGenerating(true);
@@ -545,13 +614,11 @@ export default function App() {
     setActiveTab('list');
   };
 
-  // --- מסך כניסה חכם (Setup Modal) ---
   if (showSetup) {
     return (
       <div className="min-h-screen bg-green-50 flex items-center justify-center p-4 font-sans" dir={isRtl ? "rtl" : "ltr"}>
         <div className="bg-white rounded-3xl shadow-xl w-full max-w-sm p-6 text-center border border-green-100 relative">
           
-          {/* כפתור שפה */}
           <button onClick={toggleLanguage} className="absolute top-4 left-4 bg-gray-100 p-2 rounded-full text-gray-500 hover:bg-gray-200 transition">
              <Globe size={18} />
           </button>
@@ -599,7 +666,6 @@ export default function App() {
     );
   }
 
-  // --- תצוגת האפליקציה הראשית ---
   return (
     <div className="min-h-screen bg-gray-50/50 p-3 font-sans relative pb-20" dir={isRtl ? "rtl" : "ltr"}>
       
@@ -609,7 +675,6 @@ export default function App() {
       </div>
 
       <div className="relative z-10 max-w-md mx-auto">
-        {/* Header */}
         <header className="bg-green-600 text-white p-3 shadow-md rounded-2xl mb-4 flex justify-between items-center relative">
           
           <button onClick={toggleLanguage} className="absolute -top-3 -left-2 bg-white/90 text-green-700 shadow border border-green-200 px-2 py-1 rounded-full text-[10px] font-bold z-50 flex items-center gap-1 backdrop-blur-sm">
@@ -645,7 +710,6 @@ export default function App() {
           </div>
         </header>
         
-        {/* --- TAB: LIST --- */}
         {activeTab === 'list' && (
           <div className="space-y-2">
             {items.length === 0 ? (
@@ -700,7 +764,6 @@ export default function App() {
           </div>
         )}
 
-        {/* --- TAB: ADD (קטגוריות וחיפוש) --- */}
         {activeTab === 'add' && (
           <div className="space-y-3">
             <div className="relative">
@@ -746,7 +809,7 @@ export default function App() {
                     <form onSubmit={(e) => {
                       e.preventDefault();
                       if(!customItemName.trim() || !user) return;
-                      const newItem = { name: customItemName.trim(), emoji: '🛒', img: null, mainCategory: 'מזווה ומאפייה', subCategory: 'יבש ושימורים' };
+                      const newItem = { name: customItemName.trim(), emoji: '🛒', img: null, mainCategory: lang === 'he' ? 'מזווה ומאפייה' : 'Pantry & Bakery', subCategory: lang === 'he' ? 'יבש ושימורים' : 'Dry Goods & Canned' };
                       addDoc(collection(db, 'artifacts', appId, 'public', 'data', `custom_${listId}`), newItem).then(() => {
                         setAddingProduct(newItem); setAddUnit(UNITS[0]); setAddAmount(1); setAddNote(''); setCustomItemName('');
                       });
@@ -784,7 +847,7 @@ export default function App() {
                             key={item.name} 
                             onClick={() => {
                               setAddingProduct(item);
-                              setAddUnit(['ירקות', 'פירות', 'בשר ודגים טריים'].includes(activeMainCategory) ? UNITS[1] : UNITS[0]);
+                              setAddUnit((activeMainCategory === 'ירקות ופירות' || activeMainCategory === 'Fruits & Vegetables' || activeMainCategory === 'בשר ודגים טריים' || activeMainCategory === 'Fresh Meat & Fish') ? UNITS[1] : UNITS[0]);
                               setAddAmount(1);
                               setAddNote('');
                             }} 
@@ -817,7 +880,6 @@ export default function App() {
           </div>
         )}
 
-        {/* --- TAB: AI ASSISTANT --- */}
         {activeTab === 'assistant' && (
           <div className="space-y-4">
             <div className="bg-gradient-to-br from-green-500 to-emerald-600 p-5 rounded-2xl shadow-lg text-white text-center">
@@ -906,9 +968,6 @@ export default function App() {
         )}
       </div>
 
-      {/* --- MODALS --- */}
-      
-      {/* Share Modal החדש */}
       {shareModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" dir={isRtl ? "rtl" : "ltr"}>
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden border border-gray-100">
@@ -936,7 +995,6 @@ export default function App() {
         </div>
       )}
 
-      {/* Custom Item Modal */}
       {customItemModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" dir={isRtl ? "rtl" : "ltr"}>
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-xs p-5">
@@ -964,7 +1022,6 @@ export default function App() {
         </div>
       )}
 
-      {/* Add Amount Modal */}
       {addingProduct && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" dir={isRtl ? "rtl" : "ltr"}>
           <div className="bg-white rounded-3xl shadow-2xl w-[260px] overflow-hidden">
@@ -1025,7 +1082,6 @@ export default function App() {
         </div>
       )}
 
-      {/* Toast Notification */}
       {toastMsg && (
         <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-gray-900/95 text-white px-4 py-2.5 rounded-xl shadow-xl z-50 font-bold text-xs whitespace-nowrap flex items-center gap-1.5 animate-slide-up" dir={isRtl ? "rtl" : "ltr"}>
           <CheckCircle2 size={14} className="text-green-400" />
@@ -1033,7 +1089,6 @@ export default function App() {
         </div>
       )}
 
-      {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-md shadow-[0_-5px_20px_rgba(0,0,0,0.05)] border-t border-gray-100 z-40" dir={isRtl ? "rtl" : "ltr"}>
         <div className="max-w-md mx-auto flex p-1.5 gap-1.5">
           <button onClick={() => setActiveTab('list')} className={`flex-1 py-2.5 rounded-xl flex items-center justify-center gap-1.5 font-bold text-xs transition-colors ${activeTab === 'list' ? 'bg-green-100 text-green-800' : 'text-gray-500 hover:bg-gray-50'}`}>
