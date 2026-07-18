@@ -8,15 +8,16 @@ import { getFirestore, collection, onSnapshot, addDoc, updateDoc, doc, deleteDoc
 const DEFAULT_FIREBASE_CONFIG = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
 const currentUrlParams = new URLSearchParams(window.location.search);
 
-let firebaseConfig = DEFAULT_FIREBASE_CONFIG;
-if (currentUrlParams.get('ak')) {
-  firebaseConfig = {
-    apiKey: currentUrlParams.get('ak'), 
-    projectId: currentUrlParams.get('pd'),
-    authDomain: currentUrlParams.get('ad'), 
-    appId: currentUrlParams.get('ai'),
-  };
-}
+// --- Firebase Config ---
+const firebaseConfig = {
+  apiKey: "AIzaSyD6Vz3EXEE8C_67l1gJDVfqAmOmSv37XJs",
+  authDomain: "family-grocery-dedb7.firebaseapp.com",
+  projectId: "family-grocery-dedb7",
+  storageBucket: "family-grocery-dedb7.firebasestorage.app",
+  messagingSenderId: "329029861566",
+  appId: "1:329029861566:web:5de3557a04afbcbac51eef"
+};
+
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
