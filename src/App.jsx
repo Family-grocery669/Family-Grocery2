@@ -359,10 +359,13 @@ export default function App() {
     setAssistantInstructions([]);
     setShowInstructions(false);
 
-    try {
-      // כאן אנחנו משתמשים במשתנה הסביבה של Vercel
+   try {
+      // המפתח שלך תקין לחלוטין - זה הסטנדרט החדש!
       const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+
+      // הפתרון: פנייה למודל gemini-3.5-flash שחי ובועט עכשיו בשרתים של גוגל
       const url = `https://generativelanguage.googleapis.com/v1/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
+
       const payload = {
         contents: [{ parts: [{ text: assistantPrompt }] }],
         systemInstruction: { parts: [{ text: "אתה עוזר חכם למטבח בעברית. המשתמש יבקש רעיון לארוחה או מתכון. החזר JSON מסודר בלבד, ללא טקסט נוסף. כלול: recipeName (שם המתכון), ingredients (מערך של אובייקטים עם name, amount, unit, emoji), ו-instructions (מערך של מחרוזות עם שלבי ההכנה)." }] },
